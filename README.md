@@ -14,14 +14,15 @@ tools and running each of the four parts.
 
 The workshop uses exactly these shared services (nothing else):
 
-| Service | Why the workshop needs it |
-| ------- | ------------------------- |
-| Azure AI Foundry account + project (**in two regions**) | Hosts the agents and model deployments. A primary stack feeds the workshop; a secondary stack in another region is there for model-quota overflow. |
-| Model deployments (`gpt-5.4-mini`, `gpt-5.4-nano`, `gpt-4.1-mini`, `text-embedding-3-small`) | Chat models + embeddings for long-term memory. Created in both Foundry regions. |
-| Azure Cosmos DB for NoSQL | Sales, inventory, and marketing data the agents query. |
-| Azure AI Search | Backs the marketing Foundry IQ knowledge base. |
-| Azure Container Apps environment + Container Registry | Host the MCP servers and chat app later in the workshop. |
-| Log Analytics + Application Insights | Observability for the deployed apps. |
+| Service                                                                                              | Why the workshop needs it                                                                                                                          |
+| ---------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Azure AI Foundry account + project (**in two regions**)                                        | Hosts the agents and model deployments. A primary stack feeds the workshop; a secondary stack in another region is there for model-quota overflow. |
+| Model deployments (`gpt-5.4-mini`, `gpt-5.4-nano`, `gpt-4.1-mini`, `text-embedding-3-small`) | Chat models + embeddings for long-term memory. Created in both Foundry regions.                                                                    |
+| Azure Databricks                                                                                     | Create ML Models and deploy                                                                                                                        |
+| Azure Cosmos DB for NoSQL                                                                            | Sales, inventory, and marketing data the agents query.                                                                                             |
+| Azure AI Search                                                                                      | Backs the marketing Foundry IQ knowledge base.                                                                                                     |
+| Azure Container Apps environment + Container Registry                                                | Host the MCP servers and chat app later in the workshop.                                                                                           |
+| Log Analytics + Application Insights                                                                 | Observability for the deployed apps.                                                                                                               |
 
 > **Regions.** Azure AI Foundry is deployed in **two** regions (configurable in
 > `aiFoundry.locations`); the **first** is primary and feeds the workshop `.env`.
@@ -47,12 +48,12 @@ C. Resource access   ->  ./scripts/grant-resource-access.ps1
 D. User access       ->  ./scripts/grant-user-access.ps1
 ```
 
-| Part | Script | Outcome |
-| ---- | ------ | ------- |
-| **A. Infrastructure** | `deploy.ps1` | All Azure resources exist and are empty. |
-| **B. Data load** | `load-data.ps1` | Cosmos containers are seeded, the marketing knowledge base is built, and a ready-to-use `.env` is written into the workshop repo. |
-| **C. Resource access** | `grant-resource-access.ps1` | The workshop's own services get the service-to-service permissions they need (see below). |
-| **D. User access** | `grant-user-access.ps1` | Participants get exactly the permissions below. |
+| Part                         | Script                        | Outcome                                                                                                                             |
+| ---------------------------- | ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| **A. Infrastructure**  | `deploy.ps1`                | All Azure resources exist and are empty.                                                                                            |
+| **B. Data load**       | `load-data.ps1`             | Cosmos containers are seeded, the marketing knowledge base is built, and a ready-to-use `.env` is written into the workshop repo. |
+| **C. Resource access** | `grant-resource-access.ps1` | The workshop's own services get the service-to-service permissions they need (see below).                                           |
+| **D. User access**     | `grant-user-access.ps1`     | Participants get exactly the permissions below.                                                                                     |
 
 ### Resource access (Part C — service-to-service)
 
@@ -60,12 +61,12 @@ The workshop services call each other at runtime via managed identities (no
 keys). Each grant and its role level is configurable in
 [infra/resource-access.parameters.json](infra/resource-access.parameters.json):
 
-| From | To | Default access | Why |
-| ---- | -- | -------------- | --- |
-| Foundry project | AI Search | Search Index Data Contributor | Foundry IQ indexes the data into AI Search and the marketing agent queries it (MCP). |
-| Foundry account | Container Registry | AcrPull | Hosted agents pull their images. |
-| Container Apps workload | Container Registry | AcrPull | The MCP servers and chat app pull their images. |
-| Container Apps workload | Cosmos DB | Data Contributor (read/write data) | The MCP servers query and update the workshop data. |
+| From                    | To                 | Default access                     | Why                                                                                  |
+| ----------------------- | ------------------ | ---------------------------------- | ------------------------------------------------------------------------------------ |
+| Foundry project         | AI Search          | Search Index Data Contributor      | Foundry IQ indexes the data into AI Search and the marketing agent queries it (MCP). |
+| Foundry account         | Container Registry | AcrPull                            | Hosted agents pull their images.                                                     |
+| Container Apps workload | Container Registry | AcrPull                            | The MCP servers and chat app pull their images.                                      |
+| Container Apps workload | Cosmos DB          | Data Contributor (read/write data) | The MCP servers query and update the workshop data.                                  |
 
 > **Container Apps identity.** Part A creates a shared **user-assigned managed
 > identity** for the Container Apps workload so its Cosmos and ACR access can be
@@ -74,11 +75,11 @@ keys). Each grant and its role level is configurable in
 
 ### Participant permissions (Part D)
 
-| Service | Participants can | Participants cannot |
-| ------- | ---------------- | ------------------- |
+| Service             | Participants can                                    | Participants cannot                  |
+| ------------------- | --------------------------------------------------- | ------------------------------------ |
 | **Cosmos DB** | Read and write documents (items) in the containers. | Create, delete, or scale containers. |
-| **Foundry** | Run agents and create agents. | Create or delete model deployments. |
-| **Search** | Read (query). | Write, manage, or delete. |
+| **Foundry**   | Run agents and create agents.                       | Create or delete model deployments.  |
+| **Search**    | Read (query).                                       | Write, manage, or delete.            |
 
 These levels are configurable in
 [infra/user-access.parameters.json](infra/user-access.parameters.json) and are
@@ -97,19 +98,16 @@ You need four tools. Open **PowerShell** and install any that are missing.
    ```powershell
    winget install --exact --id Microsoft.AzureCLI
    ```
-
 2. **Azure Developer CLI** (`azd`)
 
    ```powershell
    winget install --exact --id Microsoft.Azd
    ```
-
 3. **Python 3.11+** (only needed for Part B, the data load)
 
    ```powershell
    winget install --exact --id Python.Python.3.12
    ```
-
 4. **Git** (to clone the workshop repo)
 
    ```powershell
@@ -151,15 +149,15 @@ az account set --subscription "<your-subscription-name-or-id>"
 Everything is configurable in **[infra/main.parameters.json](infra/main.parameters.json)**.
 Open it and adjust as needed — the most common changes:
 
-| Setting | What it controls |
-| ------- | ---------------- |
-| `workshopName`, `environmentName` | Prefix used in every resource name. |
-| `primaryLocation` | Region for Cosmos, Search, Container Apps, App Insights. |
-| `aiFoundry.locations` | The one or two regions for Foundry + models. First = primary (feeds `.env`), second = quota-overflow stack. |
-| `aiFoundry.deployments` | The models and capacities to deploy (created in every Foundry region). |
-| `aiFoundry.chatDeploymentName` / `embeddingDeploymentName` | Which deployments become the chat and embedding models in `.env`. |
-| `aiSearch`, `containerRegistry`, `containerApps` | SKUs and sizes. |
-| `cosmosDb` | Database name, container names, and throughput. |
+| Setting                                                        | What it controls                                                                                              |
+| -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `workshopName`, `environmentName`                          | Prefix used in every resource name.                                                                           |
+| `primaryLocation`                                            | Region for Cosmos, Search, Container Apps, App Insights.                                                      |
+| `aiFoundry.locations`                                        | The one or two regions for Foundry + models. First = primary (feeds `.env`), second = quota-overflow stack. |
+| `aiFoundry.deployments`                                      | The models and capacities to deploy (created in every Foundry region).                                        |
+| `aiFoundry.chatDeploymentName` / `embeddingDeploymentName` | Which deployments become the chat and embedding models in `.env`.                                           |
+| `aiSearch`, `containerRegistry`, `containerApps`         | SKUs and sizes.                                                                                               |
+| `cosmosDb`                                                   | Database name, container names, and throughput.                                                               |
 
 You do **not** need to pick resource names — they are generated automatically
 from `workshopName` + `environmentName` and are globally unique.
@@ -314,15 +312,15 @@ scripts/
 
 ## Troubleshooting
 
-| Symptom | Fix |
-| ------- | --- |
-| `azd up` fails with `ERROR: Login expired` / `AADSTS700082` | The sign-in token lapsed. Run `azd auth login --tenant-id <your-tenant-id>` (and `az login` if needed), then re-run the script. |
-| `azd up` fails on a model deployment with a quota error | Lower `capacity` in `aiFoundry.deployments`, or change a region in `aiFoundry.locations` to one with quota. |
-| Seed commands fail with a 403 from Cosmos | Wait a minute for the operator role grant to propagate, then re-run `load-data.ps1` (it is idempotent). |
-| `python -m src...` not found | Activate the workshop venv and `pip install -e .` inside the workshop repo. |
+| Symptom                                                                     | Fix                                                                                                                                                                                                 |
+| --------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `azd up` fails with `ERROR: Login expired` / `AADSTS700082`           | The sign-in token lapsed. Run `azd auth login --tenant-id <your-tenant-id>` (and `az login` if needed), then re-run the script.                                                                 |
+| `azd up` fails on a model deployment with a quota error                   | Lower `capacity` in `aiFoundry.deployments`, or change a region in `aiFoundry.locations` to one with quota.                                                                                   |
+| Seed commands fail with a 403 from Cosmos                                   | Wait a minute for the operator role grant to propagate, then re-run `load-data.ps1` (it is idempotent).                                                                                           |
+| `python -m src...` not found                                              | Activate the workshop venv and `pip install -e .` inside the workshop repo.                                                                                                                       |
 | KB build fails with `ModuleNotFoundError: No module named 'azure.search'` | The workshop's `pip install -e .` doesn't pull in the Search SDK. Install it into the workshop venv: `pip install "azure-search-documents==11.7.0b2"`, then re-run `load-data.ps1 -SkipSeed`. |
-| `grant-user-access.ps1` says outputs not found | Run `./scripts/deploy.ps1` first — it creates `.azure/main-outputs.json`. |
-| Participants get 401 from Search/Foundry right after Part D | Azure RBAC can take a few minutes to propagate. |
+| `grant-user-access.ps1` says outputs not found                            | Run `./scripts/deploy.ps1` first — it creates `.azure/main-outputs.json`.                                                                                                                      |
+| Participants get 401 from Search/Foundry right after Part D                 | Azure RBAC can take a few minutes to propagate.                                                                                                                                                     |
 
 ---
 
@@ -330,11 +328,11 @@ scripts/
 
 ### Participant permission model
 
-| Requirement | Implementation |
-| ----------- | -------------- |
-| Cosmos: read/write items, no create/delete/scale | A **custom** Cosmos SQL role granting only `containers/items/*`, `executeQuery`, `readChangeFeed`, and `readMetadata` — it deliberately omits container management actions. |
-| Foundry: run + create agents, no deployment changes | Built-in **Azure AI User** on each project scope (data plane). No control-plane role on the account, so deployments can't be created or deleted. Granted on the primary project and, when present, the secondary one. |
-| Search: read only | Built-in **Search Index Data Reader** on the service. |
+| Requirement                                         | Implementation                                                                                                                                                                                                             |
+| --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Cosmos: read/write items, no create/delete/scale    | A**custom** Cosmos SQL role granting only `containers/items/*`, `executeQuery`, `readChangeFeed`, and `readMetadata` — it deliberately omits container management actions.                                  |
+| Foundry: run + create agents, no deployment changes | Built-in**Azure AI User** on each project scope (data plane). No control-plane role on the account, so deployments can't be created or deleted. Granted on the primary project and, when present, the secondary one. |
+| Search: read only                                   | Built-in**Search Index Data Reader** on the service.                                                                                                                                                                 |
 
 ### Service-to-service RBAC (Part C)
 
@@ -351,14 +349,14 @@ grant + role level is toggled in `resource-access.parameters.json`.
 
 ### Auth posture — no key-based authentication anywhere
 
-| Service | Keyless enforcement |
-| ------- | ------------------- |
-| Cosmos DB | `disableLocalAuth: true` — account keys cannot be used. |
-| Azure AI Foundry | `disableLocalAuth: true` — API keys rejected. |
-| Azure AI Search | `disableLocalAuth: true`, no `authOptions` — admin/query keys disabled. |
-| Container Registry | `adminUserEnabled: false` — no admin user/password; pull/push via AAD (AcrPull/AcrPush) or managed identity. |
-| Application Insights | `DisableLocalAuth: true` — instrumentation-key ingestion rejected. |
-| Container Apps env | Logs use the Azure Monitor destination + a diagnostic setting (workspace resource id), so no Log Analytics shared key is ever read. |
+| Service              | Keyless enforcement                                                                                                                 |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Cosmos DB            | `disableLocalAuth: true` — account keys cannot be used.                                                                          |
+| Azure AI Foundry     | `disableLocalAuth: true` — API keys rejected.                                                                                    |
+| Azure AI Search      | `disableLocalAuth: true`, no `authOptions` — admin/query keys disabled.                                                        |
+| Container Registry   | `adminUserEnabled: false` — no admin user/password; pull/push via AAD (AcrPull/AcrPush) or managed identity.                     |
+| Application Insights | `DisableLocalAuth: true` — instrumentation-key ingestion rejected.                                                               |
+| Container Apps env   | Logs use the Azure Monitor destination + a diagnostic setting (workspace resource id), so no Log Analytics shared key is ever read. |
 
 Because everything is AAD-only:
 
@@ -373,9 +371,9 @@ Because everything is AAD-only:
 
 ### Why the four-part split
 
-| Part | Mechanism | Reason |
-| ---- | --------- | ------ |
-| A. Infra | `azd up` / `main.bicep` | Repeatable, declarative provisioning. |
-| B. Data | `load-data.ps1` + workshop Python | Seeding is a data-plane operation that needs the workshop code; kept out of Bicep. |
-| C. Resource access | `resource-access.bicep` / `grant-resource-access.ps1` | Service-to-service grants, reviewable and configurable on their own. |
-| D. User access | `user-access.bicep` / `grant-user-access.ps1` | Participant access, reviewed and changed without touching infrastructure. |
+| Part               | Mechanism                                                 | Reason                                                                             |
+| ------------------ | --------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| A. Infra           | `azd up` / `main.bicep`                               | Repeatable, declarative provisioning.                                              |
+| B. Data            | `load-data.ps1` + workshop Python                       | Seeding is a data-plane operation that needs the workshop code; kept out of Bicep. |
+| C. Resource access | `resource-access.bicep` / `grant-resource-access.ps1` | Service-to-service grants, reviewable and configurable on their own.               |
+| D. User access     | `user-access.bicep` / `grant-user-access.ps1`         | Participant access, reviewed and changed without touching infrastructure.          |
