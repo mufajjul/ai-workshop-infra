@@ -55,8 +55,9 @@ resource cosmos 'Microsoft.DocumentDB/databaseAccounts@2024-11-15' existing = if
 
 // ---------------------------------------------------------------------------
 // Built-in role definitions (configurable in user-access.parameters.json).
-//  - foundry: data-plane role for running/creating agents (default Azure AI
-//    User). No control-plane rights, so users cannot create/delete deployments.
+//  - foundry: data-plane role for running/creating agents (default Foundry
+//    User, formerly Azure AI User). No control-plane rights, so users cannot
+//    create/delete deployments.
 //  - search:  read-only query access (default Search Index Data Reader).
 // ---------------------------------------------------------------------------
 var azureAiUserRoleId = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', userAccess.foundry.roleDefinitionId)

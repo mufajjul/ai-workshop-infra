@@ -6,7 +6,7 @@
     Deploys infra/user-access.bicep, which grants every principal listed in
     infra/user-access.parameters.json:
       - Cosmos DB : read + write items (custom role, no create/delete/scale).
-      - Foundry   : run + create agents (Azure AI User), no deployment changes.
+      - Foundry   : run + create agents (Foundry User), no deployment changes.
       - Search    : read only (Search Index Data Reader).
 
     Run this AFTER scripts/deploy.ps1. Edit infra/user-access.parameters.json

@@ -33,6 +33,46 @@ function Get-AzdEnvValues {
     return $values
 }
 
+# Azure AI Foundry (Cognitive Services) accounts support SOFT DELETE. When the
+# stack is torn down, the account name lingers in a soft-deleted state for days.
+# Because this template generates deterministic account names from the resource
+# group, a fresh `azd up` then fails with FlagMustBeSetForRestore. Purging any
+# soft-deleted accounts that belong to the target resource group first makes the
+# deployment idempotent and repeatable.
+function Clear-SoftDeletedFoundryAccounts {
+    param([string]$ResourceGroup)
+
+    if ([string]::IsNullOrWhiteSpace($ResourceGroup)) {
+        Write-Warning 'Resource group unknown; skipping soft-deleted Foundry cleanup.'
+        return
+    }
+
+    Write-Host "Checking for soft-deleted Foundry (Cognitive Services) accounts in '$ResourceGroup'..."
+    $deletedJson = az cognitiveservices account list-deleted -o json 2>$null
+    if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($deletedJson)) {
+        return
+    }
+
+    $rgPattern = "/resourceGroups/$([regex]::Escape($ResourceGroup))/"
+    $toPurge = @(($deletedJson | ConvertFrom-Json) | Where-Object { $_.id -match $rgPattern })
+    if ($toPurge.Count -eq 0) {
+        Write-Host '  None found.'
+        return
+    }
+
+    foreach ($acct in $toPurge) {
+        Write-Host "  Purging soft-deleted account '$($acct.name)' in '$($acct.location)'..."
+        az cognitiveservices account purge `
+            --name $acct.name `
+            --resource-group $ResourceGroup `
+            --location $acct.location `
+            --only-show-errors | Out-Null
+        if ($LASTEXITCODE -ne 0) {
+            Write-Warning "  Could not purge '$($acct.name)'. Purge it manually in the Azure portal, then re-run this script."
+        }
+    }
+}
+
 function Export-DeploymentOutputs {
     param(
         [string]$ResourceGroup,
@@ -68,6 +108,17 @@ $projectRoot = Get-ProjectRoot
 Push-Location $projectRoot
 try {
     Write-Host '== Part A: provisioning shared workshop infrastructure (azd up) =='
+
+    # Purge any soft-deleted Foundry accounts left over from a previous teardown
+    # so the deterministic account names are free to be (re)created.
+    $preEnv = Get-AzdEnvValues
+    $preResourceGroup = $preEnv['AZURE_RESOURCE_GROUP']
+    if ([string]::IsNullOrWhiteSpace($preResourceGroup) -and -not [string]::IsNullOrWhiteSpace($preEnv['AZURE_ENV_NAME'])) {
+        # azd's default resource group name is rg-<environment-name>.
+        $preResourceGroup = "rg-$($preEnv['AZURE_ENV_NAME'])"
+    }
+    Clear-SoftDeletedFoundryAccounts -ResourceGroup $preResourceGroup
+
     azd up
     if ($LASTEXITCODE -ne 0) {
         throw "azd up failed with exit code $LASTEXITCODE."

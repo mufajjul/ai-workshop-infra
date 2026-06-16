@@ -1,0 +1,16 @@
+# Foundry projects to create — one project name per line.
+#
+# This file controls HOW MANY isolated Azure AI Foundry projects are created
+# in the SAME Foundry account (it is NOT a list of users). A single Entra
+# group is granted Azure AI User on EVERY project. All projects share the
+# account's model deployments, so every project exposes the same models.
+#
+# Last deployed: 2026-06-16 15:11:55Z  (account: aif-zavaaiworkshzr6ri7tf; group a394c346-50f4-4c0a-acbe-e33ed81b9655 granted Azure AI User on all projects)
+#
+# Edit the project names below and re-run ./scripts/deploy-user-projects.ps1
+# (the first token on each row is used; the endpoint is informational).
+#
+# project | foundryEndpoint
+# --- projects below ---
+project-01 | https://aif-zavaaiworkshzr6ri7tf.services.ai.azure.com/api/projects/project-01
+project-02 | https://aif-zavaaiworkshzr6ri7tf.services.ai.azure.com/api/projects/project-02

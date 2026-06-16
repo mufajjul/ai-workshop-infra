@@ -146,6 +146,8 @@ try {
         ACA_ENVIRONMENT                       = $settings.acaEnvironment
         ACA_LOCATION                          = $envValues['AZURE_LOCATION']
         ACR_NAME                              = $settings.acrName
+        APP_IDENTITY_RESOURCE_ID              = $settings.workloadIdentityResourceId
+        APP_IDENTITY_CLIENT_ID                = $settings.workloadIdentityClientId
         APPLICATIONINSIGHTS_CONNECTION_STRING = $endpoints.appInsightsConnectionString
     }
 

@@ -38,20 +38,7 @@
           "//embeddingDeploymentName": "Must match one deployment.name below; written to .env as AZURE_AI_EMBEDDING_DEPLOYMENT (long-term memory).",
           "embeddingDeploymentName": "text-embedding-3-small",
           "deployments": [
-            {
-              "name": "gpt-5.4-mini",
-              "model": "gpt-5.4-mini",
-              "version": "2026-03-17",
-              "skuName": "GlobalStandard",
-              "capacity": 1000
-            },
-            {
-              "name": "gpt-5.4-nano",
-              "model": "gpt-5.4-nano",
-              "version": "2026-03-17",
-              "skuName": "GlobalStandard",
-              "capacity": 5000
-            },
+
             {
               "name": "gpt-4.1-mini",
               "model": "gpt-4.1-mini",
@@ -59,14 +46,6 @@
               "skuName": "GlobalStandard",
               "//capacity": "Capped to available quota in the tightest Foundry region (swedencentral). Raise toward 5000 once quota is freed/increased.",
               "capacity": 1163
-            },
-            {
-              "name": "text-embedding-3-small",
-              "model": "text-embedding-3-small",
-              "version": "1",
-              "skuName": "GlobalStandard",
-              "//capacity": "Capped to available quota in the tightest Foundry region (swedencentral). Raise toward 1000 once quota is freed/increased.",
-              "capacity": 425
             }
           ]
         },
