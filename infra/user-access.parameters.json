@@ -6,7 +6,7 @@
       "//": "One entry per workshop participant or per Entra group of participants. Replace objectId with a real Entra user/group object id. principalType is 'User', 'Group', or 'ServicePrincipal'. Find a user id with: az ad user show --id alias@contoso.com --query id -o tsv. Find a group id with: az ad group show --group 'workshop-participants' --query id -o tsv",
       "value": [
         {
-          "objectId": "00000000-0000-0000-0000-000000000000",
+          "objectId": "a394c346-50f4-4c0a-acbe-e33ed81b9655",
           "principalType": "Group",
           "displayName": "workshop-participants"
         }
@@ -15,9 +15,9 @@
     "userAccess": {
       "//": "Part D — the exact level of access participants receive. Change a roleDefinitionId to raise/lower a level, or edit the Cosmos dataActions list.",
       "value": {
-        "//foundry": "Foundry project access. Default: Azure AI User = run + create agents, but NOT create/delete model deployments.",
+        "//foundry": "Foundry project access. Default: Foundry User (formerly Azure AI User) = run + create agents, but NOT create/delete model deployments.",
         "foundry": {
-          "roleName": "Azure AI User",
+          "roleName": "Foundry User",
           "roleDefinitionId": "53ca6127-db72-4b80-b1b0-d745d6d5456d"
         },
         "//search": "AI Search access. Default: Search Index Data Reader = read (query) only.",

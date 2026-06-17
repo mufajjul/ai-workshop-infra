@@ -84,8 +84,48 @@ keys). Each grant and its role level is configurable in
 These levels are configurable in
 [infra/user-access.parameters.json](infra/user-access.parameters.json) and are
 enforced with a **custom Cosmos data role** (items only), the built-in
-**Azure AI User** role on the Foundry project, and the built-in **Search Index
+**Foundry User** role on the Foundry project, and the built-in **Search Index
 Data Reader** role on Search.
+
+### Multiple isolated projects (optional)
+
+For isolation you can create **several Foundry projects** inside the same
+Foundry account and give one Entra **group** access to all of them. Every
+project shares the account's model deployments, so all projects expose the
+**same models** with no duplication.
+
+1. List the projects to create in
+   **[infra/foundry-projects.txt](infra/foundry-projects.txt)** — one project
+   name per line (this controls **how many** projects are created; it is not a
+   list of users):
+
+   ```
+   project-01
+   project-02
+   ```
+
+2. After Part A, run it with the Entra group that should access every project:
+
+   ```powershell
+   ./scripts/deploy-user-projects.ps1 -GroupObjectId <entra-group-object-id>
+   ```
+
+   > If you omit `-GroupObjectId`, the first **Group** entry in
+   > [infra/user-access.parameters.json](infra/user-access.parameters.json) is
+   > used.
+
+The script creates one project per name
+(via [infra/user-projects.bicep](infra/user-projects.bicep)), grants the group
+**Azure AI User** on **every** project, then rewrites the projects file with
+each project's Foundry endpoint:
+
+```
+# project | foundryEndpoint
+project-01 | https://<account>.services.ai.azure.com/api/projects/project-01
+project-02 | https://<account>.services.ai.azure.com/api/projects/project-02
+```
+
+Hand out the `foundryEndpoint` for whichever project each user should use.
 
 ---
 
@@ -183,6 +223,22 @@ azd env set AZURE_LOCATION northcentralus
 This runs `azd up` and then saves the deployment outputs to
 `.azure/main-outputs.json` (used by the next two steps). When it finishes, all
 resources exist but contain no data.
+
+> **Multiple isolated Foundry projects (optional).** Part A creates a single
+> shared Foundry project. If you instead want **several isolated projects** in
+> the same Foundry account — all sharing the same account-level models — list
+> the project names (one per line) in
+> [infra/foundry-projects.txt](infra/foundry-projects.txt) and, after this step,
+> run:
+>
+> ```powershell
+> ./scripts/deploy-user-projects.ps1 -GroupObjectId <entra-group-object-id>
+> ```
+>
+> This creates one project per name and grants the Entra **group** Azure AI User
+> on **every** project, then writes each project's endpoint back into the file.
+> See [Multiple isolated projects (optional)](#multiple-isolated-projects-optional)
+> for details.
 
 ---
 
@@ -298,6 +354,8 @@ infra/
   resource-access.parameters.json   which service grants + levels
   user-access.bicep                 participant access (Part D)
   user-access.parameters.json       the users/groups to grant + access levels
+  user-projects.bicep               optional: multiple isolated Foundry projects + group access
+  foundry-projects.txt              optional: project names to create (how many projects)
 scripts/
   deploy.ps1                        Part A - provision
   load-data.ps1                     Part B - seed data + build KB + write .env
@@ -305,6 +363,7 @@ scripts/
   revoke-resource-access.ps1        remove service-to-service access
   grant-user-access.ps1             Part D - grant participant access
   revoke-user-access.ps1            remove participant access
+  deploy-user-projects.ps1          optional - multiple isolated Foundry projects + group access
   destroy.ps1                       teardown
 ```
 
