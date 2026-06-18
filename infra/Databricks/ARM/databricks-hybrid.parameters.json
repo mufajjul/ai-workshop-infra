@@ -4,10 +4,10 @@
 
   "parameters": {
     "workspaceName": {
-      "value": "adb-hybrid-prod1"
+      "value": "adb-pepsico-demo-ws"
     },
     "location": {
-      "value": "eastus2"
+      "value": "swedencentral"
     },
     "disablePublicIp": {
       "value": true
